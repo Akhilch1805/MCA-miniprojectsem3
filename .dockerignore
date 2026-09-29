@@ -1,0 +1,10 @@
+.git
+.gitignore
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.DS_Store
+MCA-miniprojectsem3/
+test_agents.py

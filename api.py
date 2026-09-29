@@ -1,28 +1,35 @@
 """
 api.py
 ------
-FastAPI application that exposes the multi-agent learning path
-generator as a REST API for the frontend to consume.
+PathForge AI — FastAPI backend for the multi-agent learning path
+generator.  Also serves the static HTML/CSS/JS frontend.
 
 Endpoints
 ---------
 POST /generate          – Full pipeline: profile → curriculum → resources → assessment
 POST /assess            – Submit quiz answers and receive adaptation report
 GET  /health            – Health check
+GET  /                  – Serves the production frontend (frontend/index.html)
 """
 
 import os
 import asyncio
 from contextlib import asynccontextmanager
 from functools import partial
+from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 load_dotenv()  # Load .env before anything else
+
+# Resolve the frontend directory relative to this file
+FRONTEND_DIR = Path(__file__).parent / "frontend"
 
 
 # ---------------------------------------------------------------------------
@@ -76,17 +83,16 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Personalized Learning Path Generator API",
+    title="PathForge AI API",
     description=(
-        "Multi-Agent AI backend (CrewAI + GPT-4o) that generates "
+        "PathForge AI — Multi-Agent backend (CrewAI + Groq) that generates "
         "fully personalized learning paths, curated resources, and "
-        "adaptive assessments."
+        "adaptive assessments for any tech career goal."
     ),
     version="1.0.0",
     lifespan=lifespan,
-
 )
-# Allow the frontend dev server (adjust origins for production)
+# CORS — allow all origins (restrict in production as needed)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -94,6 +100,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Serve static frontend ──────────────────────────────────────────────────
+if FRONTEND_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="frontend")
+
+
+@app.get("/", include_in_schema=False)
+async def serve_root():
+    """Redirect / to the landing page."""
+    index = FRONTEND_DIR / "index.html"
+    if index.exists():
+        return FileResponse(str(index))
+    return {"message": "PathForge AI API", "docs": "/docs"}
 
 
 # ---------------------------------------------------------------------------
@@ -103,7 +122,15 @@ app.add_middleware(
 @app.get("/health", tags=["Meta"])
 async def health_check():
     """Quick liveness probe."""
-    return {"status": "ok", "model": os.getenv("OPENAI_MODEL", "gpt-4o")}
+    groq_key  = bool(os.getenv("GROQ_API_KEY"))
+    openai_key = bool(os.getenv("OPENAI_API_KEY"))
+    model = os.getenv("GROQ_MODEL", os.getenv("OPENAI_MODEL", "unset"))
+    return {
+        "status": "ok",
+        "model": model,
+        "llm_provider": "groq" if groq_key else "openai" if openai_key else "none",
+        "frontend": FRONTEND_DIR.exists(),
+    }
 
 
 @app.post("/generate", response_model=PipelineResponse, tags=["Pipeline"])

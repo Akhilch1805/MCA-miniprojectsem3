@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PathForge AI – Generate Your Learning Path</title>
+  <meta name="description" content="Generate a personalized AI-powered learning roadmap tailored to your skills and career goals." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body class="app-body">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html" class="sidebar-logo nav-logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">PathForge <span class="logo-accent">AI</span></span>
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Main</span>
+      <button class="sidebar-item active" data-page="profile" id="nav-profile">
+        <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        My Profile
+      </button>
+      <button class="sidebar-item" data-page="generate" id="nav-generate">
+        <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Generate Path
+      </button>
+
+      <span class="nav-section-label">Results</span>
+      <button class="sidebar-item" data-page="gap-report" id="nav-gap">
+        <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Gap Report
+      </button>
+      <button class="sidebar-item" data-page="roadmap" id="nav-roadmap">
+        <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h18M3 6h18M3 18h18"/><circle cx="8" cy="6" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/></svg>
+        Roadmap
+      </button>
+      <button class="sidebar-item" data-page="resources" id="nav-resources">
+        <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Resources
+      </button>
+      <button class="sidebar-item" data-page="assessment" id="nav-assessment">
+        <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Assessment
+      </button>
+
+      <span class="nav-section-label">Progress</span>
+      <button class="sidebar-item" data-page="progress" id="nav-progress">
+        <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        My Progress
+      </button>
+    </nav>
+
+    <!-- Agent Status Panel -->
+    <div class="agent-status-panel" id="agent-status-panel">
+      <div class="agent-status-title">AI Agents</div>
+      <div class="agent-status-item">
+        <span class="agent-dot" id="dot-profiler"></span>
+        <span class="agent-status-name">Profiler &amp; Diagnostic</span>
+      </div>
+      <div class="agent-status-item">
+        <span class="agent-dot" id="dot-curriculum"></span>
+        <span class="agent-status-name">Curriculum Architect</span>
+      </div>
+      <div class="agent-status-item">
+        <span class="agent-dot" id="dot-resource"></span>
+        <span class="agent-status-name">Resource Curator</span>
+      </div>
+      <div class="agent-status-item">
+        <span class="agent-dot" id="dot-assessment"></span>
+        <span class="agent-status-name">Assessment Specialist</span>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ── MAIN ── -->
+  <div class="main-content">
+    <header class="app-topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div>
+        <div class="topbar-title" id="topbar-title">My Profile</div>
+        <div class="topbar-subtitle" id="topbar-subtitle">Set up your goals and skill level</div>
+      </div>
+      <div class="flex gap-8">
+        <button class="btn btn-outline btn-sm" id="btn-export" style="display:none;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Export
+        </button>
+        <a href="../index.html" class="btn btn-ghost btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Home
+        </a>
+      </div>
+    </header>
+
+    <main class="app-page">
+
+      <!-- ════════════════════════════════
+           PAGE: PROFILE
+           ════════════════════════════════ -->
+      <div id="page-profile" class="page-view">
+        <div class="page-card card-glass">
+          <h2 class="page-card-title">Your Learning Profile</h2>
+          <p class="page-card-desc">Tell PathForge AI about yourself so it can build a roadmap tailored precisely to your goals.</p>
+
+          <form id="profile-form" autocomplete="off">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="input-name">Your Name</label>
+                <input id="input-name" class="form-input" type="text" placeholder="e.g. Akhil" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="input-target-role">Target Role / Career Goal</label>
+                <input id="input-target-role" class="form-input" type="text" placeholder="e.g. Machine Learning Engineer" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-skills">Current Skills</label>
+              <input id="input-skills" class="form-input" type="text" placeholder="Type a skill and press Enter — e.g. Python" />
+              <div class="skills-tags" id="skills-tags"></div>
+              <p class="form-hint">Add each skill separately. Press Enter or comma to add.</p>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="input-exp">Years of Experience</label>
+                <select id="input-exp" class="form-input">
+                  <option value="0">0 – Beginner (just starting)</option>
+                  <option value="1">1 year</option>
+                  <option value="2">2 years</option>
+                  <option value="3">3 years</option>
+                  <option value="5">5 years</option>
+                  <option value="8">8+ years</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="input-module">Generate Quiz for Module</label>
+                <select id="input-module" class="form-input">
+                  <option value="1">Module 1</option>
+                  <option value="2">Module 2</option>
+                  <option value="3">Module 3</option>
+                  <option value="4">Module 4</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Weekly Study Hours: <span id="hours-val" class="text-teal fw-700">10 hrs</span></label>
+              <div class="range-wrap">
+                <input id="input-hours" type="range" min="1" max="60" value="10" step="1" />
+                <span class="range-value" id="range-display">10 hrs</span>
+              </div>
+              <p class="form-hint">How many hours per week can you commit to learning?</p>
+            </div>
+
+            <hr class="divider" />
+
+            <div class="flex gap-12">
+              <button type="submit" class="btn btn-primary" id="btn-save-profile">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save Profile
+              </button>
+              <button type="button" class="btn btn-primary" id="btn-go-generate" style="display:none;">
+                Generate My Path
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Profile Preview -->
+        <div class="page-card card-glass" id="profile-preview" style="display:none;">
+          <h3 class="page-card-title">Profile Summary</h3>
+          <div id="profile-preview-content"></div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           PAGE: GENERATE
+           ════════════════════════════════ -->
+      <div id="page-generate" class="page-view" style="display:none;">
+        <div class="page-card card-glass" id="generate-ready-card">
+          <h2 class="page-card-title">Generate Your Learning Path</h2>
+          <p class="page-card-desc">Our 4 AI agents will analyze your profile and build a complete, personalized learning roadmap. This typically takes 30–120 seconds.</p>
+
+          <div id="profile-summary-bar" class="mb-24"></div>
+
+          <div class="flex gap-12 mb-24">
+            <button class="btn btn-primary btn-lg" id="btn-generate">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Launch AI Pipeline
+            </button>
+          </div>
+
+          <!-- Pipeline Progress -->
+          <div class="pipeline-progress" id="pipeline-progress" style="display:none;">
+            <div class="pipeline-step" id="ps-profiler">
+              <div class="pipeline-icon">🔍</div>
+              <div class="pipeline-info">
+                <div class="pipeline-name">Profiler &amp; Diagnostic Agent</div>
+                <div class="pipeline-status">Waiting...</div>
+              </div>
+            </div>
+            <div class="pipeline-step" id="ps-curriculum">
+              <div class="pipeline-icon">📚</div>
+              <div class="pipeline-info">
+                <div class="pipeline-name">Curriculum Architect</div>
+                <div class="pipeline-status">Waiting...</div>
+              </div>
+            </div>
+            <div class="pipeline-step" id="ps-resource">
+              <div class="pipeline-icon">⭐</div>
+              <div class="pipeline-info">
+                <div class="pipeline-name">Resource Curation Specialist</div>
+                <div class="pipeline-status">Waiting...</div>
+              </div>
+            </div>
+            <div class="pipeline-step" id="ps-assessment">
+              <div class="pipeline-icon">📝</div>
+              <div class="pipeline-info">
+                <div class="pipeline-name">Assessment &amp; Adaptation Specialist</div>
+                <div class="pipeline-status">Waiting...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error block -->
+          <div id="generate-error" class="mt-16" style="display:none;">
+            <div class="toast toast-error">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              <div id="generate-error-text"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No profile warning -->
+        <div id="no-profile-warning" class="page-card card-glass" style="display:none;">
+          <div class="empty-state">
+            <div class="empty-state-icon">👤</div>
+            <div class="empty-state-title">No Profile Found</div>
+            <p class="empty-state-text">Please fill in your profile before generating a learning path.</p>
+            <button class="btn btn-primary mt-16" data-page="profile">Go to Profile</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           PAGE: GAP REPORT
+           ════════════════════════════════ -->
+      <div id="page-gap-report" class="page-view" style="display:none;">
+        <div class="page-card card-glass">
+          <h2 class="page-card-title">Skill Gap Analysis</h2>
+          <p class="page-card-desc">Your personal gap report from the Profiler &amp; Diagnostic Agent — ranked by priority.</p>
+          <div id="gap-report-output" class="output-section">
+            <div class="empty-state">
+              <div class="empty-state-icon">🔍</div>
+              <div class="empty-state-title">No Gap Report Yet</div>
+              <p class="empty-state-text">Generate your learning path to see your skill analysis.</p>
+              <button class="btn btn-primary mt-16" data-page="generate">Generate Path</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           PAGE: ROADMAP
+           ════════════════════════════════ -->
+      <div id="page-roadmap" class="page-view" style="display:none;">
+        <div class="page-card card-glass">
+          <h2 class="page-card-title">Your Learning Roadmap</h2>
+          <p class="page-card-desc">A sequenced curriculum designed by the Curriculum Architect — modules, milestones, and a capstone project.</p>
+          <div id="roadmap-output" class="output-section">
+            <div class="empty-state">
+              <div class="empty-state-icon">🗺️</div>
+              <div class="empty-state-title">No Roadmap Yet</div>
+              <p class="empty-state-text">Generate your learning path to unlock your personalized roadmap.</p>
+              <button class="btn btn-primary mt-16" data-page="generate">Generate Path</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           PAGE: RESOURCES
+           ════════════════════════════════ -->
+      <div id="page-resources" class="page-view" style="display:none;">
+        <div class="page-card card-glass">
+          <h2 class="page-card-title">Curated Resources</h2>
+          <p class="page-card-desc">Vetted free resources, paid courses, hands-on exercises, and official docs — one set per module.</p>
+          <div id="resources-output" class="output-section">
+            <div class="empty-state">
+              <div class="empty-state-icon">⭐</div>
+              <div class="empty-state-title">No Resources Yet</div>
+              <p class="empty-state-text">Generate your learning path to see curated resources for each module.</p>
+              <button class="btn btn-primary mt-16" data-page="generate">Generate Path</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           PAGE: ASSESSMENT
+           ════════════════════════════════ -->
+      <div id="page-assessment" class="page-view" style="display:none;">
+        <div class="page-card card-glass" id="quiz-display-card">
+          <h2 class="page-card-title">Module Assessment</h2>
+          <p class="page-card-desc" id="quiz-card-desc">Test your understanding with a 7-question adaptive quiz generated specifically for your module.</p>
+
+          <div id="quiz-content">
+            <div class="empty-state">
+              <div class="empty-state-icon">📝</div>
+              <div class="empty-state-title">No Assessment Yet</div>
+              <p class="empty-state-text">Generate your learning path first. The AI will automatically create a quiz for your selected module.</p>
+              <button class="btn btn-primary mt-16" data-page="generate">Generate Path</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit / Results Card (shows after quiz loaded) -->
+        <div class="page-card card-glass" id="quiz-submit-card" style="display:none;">
+          <h3 class="page-card-title">Submit Your Answers</h3>
+          <p class="page-card-desc">Submit to receive your mastery score and an AI-generated adaptation plan for the next module.</p>
+          <div class="flex gap-12">
+            <button class="btn btn-primary" id="btn-submit-quiz">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Submit Answers
+            </button>
+          </div>
+          <div id="quiz-results" class="mt-24" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           PAGE: PROGRESS
+           ════════════════════════════════ -->
+      <div id="page-progress" class="page-view" style="display:none;">
+        <div class="page-card card-glass">
+          <h2 class="page-card-title">My Progress</h2>
+          <p class="page-card-desc">Track your journey through your personalized learning path.</p>
+          <div id="progress-content">
+            <div class="empty-state">
+              <div class="empty-state-icon">📈</div>
+              <div class="empty-state-title">No Progress Yet</div>
+              <p class="empty-state-text">Complete your profile, generate a path, and submit an assessment to track progress here.</p>
+              <button class="btn btn-primary mt-16" data-page="profile">Get Started</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- ── marked.js for Markdown rendering ── -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+  <script src="../assets/app.js"></script>
+</body>
+</html>

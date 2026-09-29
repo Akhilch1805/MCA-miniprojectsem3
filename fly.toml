@@ -1,0 +1,26 @@
+# fly.toml — PathForge AI deployment config
+app = 'pathforge-ai'
+primary_region = 'sin'   # Singapore — closest to India
+
+[build]
+
+[env]
+  CREWAI_DISABLE_TELEMETRY = "true"
+  LITELLM_DISABLE_PROMPT_CACHING = "true"
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 25
+    soft_limit = 20
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
