@@ -84,8 +84,8 @@ app = FastAPI(
     ),
     version="1.0.0",
     lifespan=lifespan,
-)
 
+)
 # Allow the frontend dev server (adjust origins for production)
 app.add_middleware(
     CORSMiddleware,
