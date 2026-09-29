@@ -58,18 +58,31 @@ def _llm(temperature: float = 0.3) -> LLM:
 
     Set in .env:
         GROQ_API_KEY=gsk_...
-        GROQ_MODEL=llama-3.1-8b-instant   # optional, default shown
+        GROQ_MODEL=qwen/qwen3.8-27b   # optional, default shown
+
+    Rate-limit handling:
+        num_retries=3 with exponential backoff is enabled via litellm.
+        request_timeout=120 gives each call up to 2 min before giving up.
     """
+    # Always re-read from env so restarts pick up .env changes cleanly
+    load_dotenv(override=True)
     groq_key = os.getenv("GROQ_API_KEY")
     openai_key = os.getenv("OPENAI_API_KEY")
 
     if groq_key:
-        model_name = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+        model_name = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
+        # Strip any accidental prefix duplication
+        if not model_name.startswith("groq/"):
+            full_model = f"groq/{model_name}"
+        else:
+            full_model = model_name
         return LLM(
-            model=f"groq/{model_name}",
+            model=full_model,
             temperature=temperature,
             api_key=groq_key,
-            caching=False,          # Groq rejects cache_breakpoint header
+            caching=False,       # Groq rejects cache_breakpoint header
+            num_retries=3,       # Auto-retry on rate limit / transient errors
+            request_timeout=120, # 2-min timeout per call
         )
     elif openai_key:
         model_name = os.getenv("OPENAI_MODEL", "gpt-4o")
@@ -77,6 +90,8 @@ def _llm(temperature: float = 0.3) -> LLM:
             model=model_name,
             temperature=temperature,
             api_key=openai_key,
+            num_retries=3,
+            request_timeout=120,
         )
     else:
         raise EnvironmentError(

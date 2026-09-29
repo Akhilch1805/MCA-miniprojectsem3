@@ -68,9 +68,9 @@ class AssessmentResponse(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Validate critical env vars at startup."""
-    if not os.getenv("your_groq_api_key_here"):
+    if not os.getenv("GROQ_API_KEY") and not os.getenv("OPENAI_API_KEY"):
         raise RuntimeError(
-            "OPENAI_API_KEY is not set. Create a .env file with OPENAI_API_KEY=sk-..."
+            "No LLM API key found. Set GROQ_API_KEY or OPENAI_API_KEY in your .env file."
         )
     yield
 
